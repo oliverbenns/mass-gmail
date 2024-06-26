@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strconv"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
@@ -38,6 +39,11 @@ func main() {
 		log.Fatalf("Unable to get data: %v", err)
 	}
 
+	isDryRun, err := getIsDryRun()
+	if err != nil {
+		log.Fatalf("Unable to get dry run flag: %v", err)
+	}
+
 	for _, address := range data.Addresses {
 		msg := MessageDetails{
 			SenderName:    data.From.Name,
@@ -47,13 +53,33 @@ func main() {
 			Body:          data.Body,
 		}
 
+		if isDryRun {
+			log.Printf("Dry run: Email to be sent %v", msg)
+			continue
+		}
+
 		gmailMsg := createGmailMessage(msg)
 		_, err = srv.Users.Messages.Send("me", &gmailMsg).Do()
 		if err != nil {
 			log.Fatalf("Unable to send email: %v", err)
 		}
 
-		log.Printf("Email sent to %s", msg.To)
+		log.Printf("Email sent to %v", msg.To)
+
 	}
 
+}
+
+func getIsDryRun() (bool, error) {
+	isDryRun := false
+	var err error
+
+	if len(os.Args) > 1 {
+		isDryRun, err = strconv.ParseBool(os.Args[1])
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return isDryRun, nil
 }
