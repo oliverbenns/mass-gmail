@@ -1,0 +1,9 @@
+{
+	"from": {
+		"name": "John Doe",
+		"address": "john.doe@example.com"
+	},
+	"addresses": ["jane.doe@example.com"],
+	"subject": "Test email",
+	"body": "This is a test email"
+}
