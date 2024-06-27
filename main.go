@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"log"
 	"os"
 	"strconv"
@@ -53,12 +54,20 @@ func main() {
 			Body:          data.Body,
 		}
 
+		gmailMsg := createGmailMessage(msg)
+
 		if isDryRun {
-			log.Printf("Dry run: Email to be sent %v", msg)
+			msgRaw, err := base64.URLEncoding.DecodeString(gmailMsg.Raw)
+			if err != nil {
+				log.Fatalf("Unable to decode email: %v", err)
+			}
+
+			log.Print("-----------------------------")
+			log.Print(string(msgRaw))
+			log.Print("-----------------------------")
 			continue
 		}
 
-		gmailMsg := createGmailMessage(msg)
 		_, err = srv.Users.Messages.Send("me", &gmailMsg).Do()
 		if err != nil {
 			log.Fatalf("Unable to send email: %v", err)

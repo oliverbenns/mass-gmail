@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"log"
+	"strings"
 
 	"google.golang.org/api/gmail/v1"
 )
@@ -18,12 +18,14 @@ type MessageDetails struct {
 
 func createGmailMessage(m MessageDetails) gmail.Message {
 	from := fmt.Sprintf("%s <%s>", m.SenderName, m.SenderAddress)
-	str := fmt.Sprintf(`From: %s
-To: %s
-Subject: %s
-%s`, from, m.To, m.Subject, m.Body)
+	parts := []string{
+		"From: " + from,
+		"To: " + m.To,
+		"Subject: " + m.Subject,
+		m.Body,
+	}
 
-	log.Printf("Message: %s", str)
+	str := strings.Join(parts, "\r\n")
 
 	message := gmail.Message{
 		Raw: encodeWeb64String([]byte(str)),
