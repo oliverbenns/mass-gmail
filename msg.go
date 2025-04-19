@@ -21,6 +21,7 @@ func createGmailMessage(m MessageDetails) gmail.Message {
 	parts := []string{
 		"From: " + from,
 		"To: " + m.To,
+		"Content-Type: text/html; charset=\"UTF-8\"",
 		"Subject: " + m.Subject + "\n",
 		m.Body,
 	}
