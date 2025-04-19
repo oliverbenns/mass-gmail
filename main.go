@@ -6,11 +6,17 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
+
+	_ "embed"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
+
+//go:embed body.txt
+var body string
 
 func main() {
 	ctx := context.Background()
@@ -51,7 +57,7 @@ func main() {
 			SenderAddress: data.From.Address,
 			To:            address,
 			Subject:       data.Subject,
-			Body:          data.Body,
+			Body:          strings.ReplaceAll(body, "\n", "<br>"),
 		}
 
 		gmailMsg := createGmailMessage(msg)
